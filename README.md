@@ -2,7 +2,7 @@
 
 A working finance model for a light electric vehicle maker, built by Paolo Caneparo as part of a freelance application to SELANA's finance team. It is unsolicited, independent, and free for SELANA to keep.
 
-Live page: published with GitHub Pages from this repository (see "Publishing" below).
+Live page: https://leonida300-gg.github.io/selana-finance-lab/
 
 ## What it is
 
@@ -48,9 +48,7 @@ The page uses SELANA's own visual language, read from the public theme on selana
 
 ## Publishing
 
-1. Create a repository on GitHub, for example `selana-finance-lab`, and push this folder to its `main` branch.
-2. In the repository, open Settings, then Pages, choose "Deploy from a branch", pick `main` and the root folder, and save.
-3. The page is served at `https://<user>.github.io/selana-finance-lab/` within a minute or two.
+The page is served by GitHub Pages from the root of the `main` branch. Every push to `main` redeploys it within a minute or two.
 
 To run it locally, open `index.html` in a browser, or serve the folder with `python3 -m http.server`.
 
