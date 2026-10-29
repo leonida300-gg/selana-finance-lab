@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Finance Lab for SELANA</title>
+  <meta name="description" content="A working finance model for a light electric vehicle maker: unit economics, cash per container, a twelve-month forecast with three statements that tie, and the bookkeeping behind each event. Built by Paolo Caneparo for SELANA.">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#252422">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Mona+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23252422'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23fffcf2' stroke-width='2'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <span class="name">Finance Lab</span>
+      <span class="for">for SELANA</span>
+    </a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#unit">One Alpha</a>
+      <a href="#container">One container</a>
+      <a href="#forecast">Twelve months</a>
+      <a href="#statements">Three statements</a>
+      <a href="#budget">Budget vs actual</a>
+      <a href="#journal">Bookkeeping</a>
+      <a href="#close">Month-end</a>
+      <a href="#about">Why I built this</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO: one Alpha ============ -->
+  <section class="hero" id="unit">
+    <div class="wrap">
+      <div class="disclosure"><span class="dot"></span> An unsolicited project by Paolo Caneparo. Not affiliated with SELANA.</div>
+      <div class="hero-grid">
+        <div class="hero-head">
+          <div>
+            <p class="eyebrow">A working finance model for a light electric vehicle maker</p>
+            <h1>Follow one Alpha from the factory to the bank account.</h1>
+          </div>
+          <div class="hero-copy">
+            <p class="intro">
+              SELANA sells the Alpha for €1,900 including VAT. This page shows what is left of that after tax, dealers, the factory in Asia, the sea freight, the import duty and the warranty, and then what happens to cash when those units travel in containers, land in a twelve-month forecast, and get booked in the ledger.
+            </p>
+            <p class="note">Prices come from selana.nl on 29 October 2026. Every cost is an assumption with a slider. Move the sliders, the whole page recalculates.</p>
+          </div>
+        </div>
+
+        <div class="unit-panel">
+          <div class="unit-panel-head">
+            <div class="title">One Alpha, €1,900 <span>including 21% VAT</span></div>
+            <div class="small muted">Width of each segment is its share of the price</div>
+          </div>
+          <div class="unit-bar" id="unit-bar" role="img" aria-label="Breakdown of the €1,900 Alpha price into VAT, dealer discount, landed cost, selling costs, warranty and contribution"></div>
+          <ul class="unit-legend" id="unit-legend"></ul>
+
+          <div class="controls">
+            <div class="control">
+              <div class="row"><label for="c-fob">Factory price per Alpha</label><output id="o-fob"></output></div>
+              <input type="range" id="c-fob" min="400" max="950" step="10" value="640">
+              <div class="src">Assumption. Ex-works, before freight</div>
+            </div>
+            <div class="control">
+              <div class="row"><label for="c-freight">Sea freight per 40 ft container</label><output id="o-freight"></output></div>
+              <input type="range" id="c-freight" min="2000" max="9000" step="100" value="4200">
+              <div class="src">Assumption. Asia to Rotterdam, 280 Alphas per box</div>
+            </div>
+            <div class="control">
+              <div class="row"><label for="c-duty">Import duty</label><output id="o-duty"></output></div>
+              <input type="range" id="c-duty" min="0" max="15" step="0.5" value="6">
+              <div class="src">Assumption. Import VAT is deferred, so not a cost</div>
+            </div>
+            <div class="control">
+              <div class="row"><label for="c-dealer">Units sold through dealers</label><output id="o-dealer"></output></div>
+              <input type="range" id="c-dealer" min="0" max="60" step="5" value="25">
+              <div class="src">Assumption. Dealers buy at 20% below the net price</div>
+            </div>
+          </div>
+
+          <div class="readouts">
+            <div class="readout"><div class="k">Net price after VAT and dealers</div><div class="v" id="r-blended"></div><div class="sub">Blended across webshop and dealer sales</div></div>
+            <div class="readout"><div class="k">Landed cost in the Amsterdam warehouse</div><div class="v" id="r-landed"></div><div class="sub">Factory, freight, duty, inbound handling</div></div>
+            <div class="readout"><div class="k">Contribution per Alpha</div><div class="v good" id="r-contrib"></div><div class="sub">Before team, rent, marketing and R&amp;D</div></div>
+            <div class="readout"><div class="k">Contribution margin</div><div class="v" id="r-margin"></div><div class="sub">Share of the net price that funds fixed costs</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ONE CONTAINER ============ -->
+  <section class="section" id="container">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Working capital</p>
+          <h2>One container, from the deposit to the day the cash comes back.</h2>
+        </div>
+        <p class="lede">The Alphas are assembled in Asia and shipped by sea. SELANA pays the factory long before a rider pays SELANA. This is the cash curve of a single container of 280 Alphas: how deep it goes, and on which day it crosses back above zero. VAT is treated as pass-through.</p>
+      </div>
+
+      <div class="module">
+        <div class="controls">
+          <div class="control">
+            <div class="row"><label for="c-deposit">Deposit paid at purchase order</label><output id="o-deposit"></output></div>
+            <input type="range" id="c-deposit" min="0" max="100" step="5" value="30">
+            <div class="src">Balance is paid when the container ships</div>
+          </div>
+          <div class="control">
+            <div class="row"><label for="c-prod">Factory lead time</label><output id="o-prod"></output></div>
+            <input type="range" id="c-prod" min="30" max="120" step="5" value="60">
+            <div class="src">Days from order to bill of lading</div>
+          </div>
+          <div class="control">
+            <div class="row"><label for="c-transit">Sea transit and customs</label><output id="o-transit"></output></div>
+            <input type="range" id="c-transit" min="25" max="80" step="5" value="47">
+            <div class="src">Days on the water plus clearance in Rotterdam</div>
+          </div>
+          <div class="control">
+            <div class="row"><label for="c-velocity">Alphas sold per month</label><output id="o-velocity"></output></div>
+            <input type="range" id="c-velocity" min="40" max="400" step="10" value="120">
+            <div class="src">Sets how long the container sits in stock</div>
+          </div>
+          <div class="control">
+            <div class="row"><label for="c-terms">Dealer payment terms</label><output id="o-terms"></output></div>
+            <input type="range" id="c-terms" min="0" max="90" step="15" value="30">
+            <div class="src">Webshop payouts land after 2 days</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="chart" id="chart-container"><div class="tooltip" id="tt-container"></div></div>
+          <ul class="legend">
+            <li><span class="sw"></span> Cumulative cash for this container, € ex VAT</li>
+            <li><span class="sw dash"></span> Events</li>
+          </ul>
+          <div class="readouts">
+            <div class="readout"><div class="k">Deepest point</div><div class="v bad" id="r-peak"></div><div class="sub">Cash tied up before the first sale</div></div>
+            <div class="readout"><div class="k">Cash back on day</div><div class="v" id="r-back"></div><div class="sub">Counted from the deposit</div></div>
+            <div class="readout"><div class="k">Days until the last euro is in</div><div class="v" id="r-cycle"></div><div class="sub">Last unit sold plus dealer terms</div></div>
+            <div class="readout"><div class="k">Cash left from this container</div><div class="v good" id="r-end"></div><div class="sub">Contribution of 280 units</div></div>
+          </div>
+          <p class="srcnote" id="container-insight"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TWELVE MONTHS ============ -->
+  <section class="section" id="forecast">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Cash flow forecast</p>
+          <h2>Twelve months ahead, with containers ordered when stock runs low.</h2>
+        </div>
+        <p class="lede">November 2026 to October 2027. The model sells Alphas and Novas, reorders a container whenever projected stock drops below one month of demand, pays the factory on its terms, settles VAT every quarter, and delivers the Nova pre-orders that were paid up front. Delivering a pre-order is revenue with no cash in, which is exactly why it is worth modelling.</p>
+      </div>
+
+      <div class="controls" style="margin-top:0">
+        <div class="control">
+          <div class="row"><label for="c-units">Alphas sold in November</label><output id="o-units"></output></div>
+          <input type="range" id="c-units" min="40" max="300" step="10" value="120">
+          <div class="src">Assumption. Starting monthly volume</div>
+        </div>
+        <div class="control">
+          <div class="row"><label for="c-growth">Monthly growth</label><output id="o-growth"></output></div>
+          <input type="range" id="c-growth" min="0" max="15" step="1" value="5">
+          <div class="src">Applies to both models</div>
+        </div>
+        <div class="control">
+          <div class="row"><label for="c-nova">Novas delivered in December</label><output id="o-nova"></output></div>
+          <input type="range" id="c-nova" min="0" max="300" step="10" value="60">
+          <div class="src">Release Q4 2026, from selana.nl. Pre-order price €899 for the first four months</div>
+        </div>
+        <div class="control">
+          <div class="row"><label for="c-deposits">Nova pre-order cash already received</label><output id="o-deposits"></output></div>
+          <input type="range" id="c-deposits" min="0" max="1000000" step="25000" value="300000">
+          <div class="src">Assumption. Sits in opening cash as a customer liability</div>
+        </div>
+        <div class="control">
+          <div class="row"><label for="c-opencash">Opening cash</label><output id="o-opencash"></output></div>
+          <input type="range" id="c-opencash" min="100000" max="1500000" step="25000" value="400000">
+          <div class="src">Assumption</div>
+        </div>
+        <div class="control">
+          <div class="row"><label for="c-team">Team cost per month</label><output id="o-team"></output></div>
+          <input type="range" id="c-team" min="20000" max="150000" step="5000" value="55000">
+          <div class="src">Assumption. Salaries and contractors</div>
+        </div>
+        <div class="control">
+          <div class="row"><label for="c-mkt">Marketing as share of revenue</label><output id="o-mkt"></output></div>
+          <input type="range" id="c-mkt" min="0" max="20" step="1" value="7">
+          <div class="src">Demo drives, ANWB partnership, paid media</div>
+        </div>
+      </div>
+
+      <div style="margin-top:36px">
+        <div class="chart" id="chart-forecast"><div class="tooltip" id="tt-forecast"></div></div>
+        <ul class="legend">
+          <li><span class="sw"></span> Cash at month end</li>
+          <li><span class="sw bar"></span> Net cash flow in the month</li>
+          <li><span class="sw dash"></span> €100k buffer</li>
+        </ul>
+      </div>
+
+      <div class="readouts">
+        <div class="readout"><div class="k">Cash at the end of October 2027</div><div class="v" id="r-endcash"></div><div class="sub">After everything below</div></div>
+        <div class="readout"><div class="k">Lowest cash point</div><div class="v" id="r-mincash"></div><div class="sub" id="r-mincash-sub"></div></div>
+        <div class="readout"><div class="k">Revenue, twelve months</div><div class="v" id="r-rev"></div><div class="sub" id="r-rev-sub"></div></div>
+        <div class="readout"><div class="k">EBITDA, twelve months</div><div class="v" id="r-ebitda"></div><div class="sub" id="r-ebitda-sub"></div></div>
+        <div class="readout"><div class="k">Containers ordered</div><div class="v" id="r-containers"></div><div class="sub" id="r-containers-sub"></div></div>
+      </div>
+
+      <div class="table-wrap sticky-col" id="tbl-forecast"></div>
+      <p class="srcnote">€ thousands, ex VAT. Opex that carries VAT is paid the month after it is incurred. Team and rent are paid in the month. VAT is settled in January, April, July and October. Corporate tax is accrued, not paid, inside the window.</p>
+    </div>
+  </section>
+
+  <!-- ============ THREE STATEMENTS ============ -->
+  <section class="section" id="statements">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Financial statements</p>
+          <h2>The same twelve months as an income statement, a balance sheet and a cash flow statement that tie.</h2>
+        </div>
+        <p class="lede">Net income flows into equity. Every change in inventory, prepayments, receivables, VAT and customer deposits shows up in the cash flow statement. The two checks at the bottom are computed live, not typed in.</p>
+      </div>
+
+      <div class="statements">
+        <div class="statement">
+          <h3>Income statement</h3>
+          <div class="period">Nov 2026 to Oct 2027, € thousands</div>
+          <div class="table-wrap" id="tbl-pl"></div>
+        </div>
+        <div class="statement">
+          <h3>Balance sheet</h3>
+          <div class="period">Opening 1 Nov 2026 and closing 31 Oct 2027, € thousands</div>
+          <div class="table-wrap" id="tbl-bs"></div>
+          <div class="check" id="chk-bs"></div>
+        </div>
+        <div class="statement">
+          <h3>Cash flow statement</h3>
+          <div class="period">Indirect method, € thousands</div>
+          <div class="table-wrap" id="tbl-cf"></div>
+          <div class="check" id="chk-cf"></div>
+        </div>
+      </div>
+
+      <div class="links">
+        <div class="link"><b>Inventory and prepayments</b> are where a hardware company's cash hides. A container that is paid for but still on the water is an asset, not an expense, and it does not touch the income statement until an Alpha is sold.</div>
+        <div class="link"><b>Customer deposits</b> for the Nova are a liability. The cash arrived months ago. When a Nova ships, the liability becomes revenue and the only cash movement is the cost of goods going out.</div>
+        <div class="link"><b>VAT payable</b> grows every month and drops every quarter. In a growth phase it looks like free cash for ten weeks at a time, which is the classic trap for a young company.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BUDGET VS ACTUAL ============ -->
+  <section class="section" id="budget">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Budget tracking</p>
+          <h2>Budget versus actual, and the two paragraphs that go with it.</h2>
+        </div>
+        <p class="lede">A sample month with invented actuals, to show the format I would use: variance in euros and in percent, a flag only when both are material, and a short note written for the founders rather than for the accountant.</p>
+      </div>
+
+      <div class="table-wrap" id="tbl-budget" style="margin-top:0"></div>
+
+      <div class="commentary">
+        <div class="memo">
+          <div class="from">Monthly note, October 2026 (sample)</div>
+          <p><strong>Revenue came in 9% under budget</strong> because 12 fewer Alphas shipped than planned. The gap is timing, not demand: the container that was due on the 14th cleared customs on the 29th and those units shipped in the first days of November. Gross margin per unit held at budget.</p>
+          <p><strong>Operating costs ran €8.4k over budget.</strong> Marketing overspent by €5.5k on the demo-drive tour, which generated 41 test rides and 9 orders, so I would keep it. Compliance overspent by €2.2k on RDW conformity testing for the Nova pre-series, which was always going to land in Q4 and should be moved into the Nova budget. Software is a small, permanent overrun from new Shopify apps and should be rebudgeted at €3.4k.</p>
+          <p><strong>Net effect on EBITDA:</strong> €17.4k below budget, of which €8.9k reverses in November when the 12 late units are invoiced. Watch item for next month: landed cost per unit on the late container, since the freight invoice included demurrage.</p>
+        </div>
+        <div>
+          <h4>Rules I use for the flag column</h4>
+          <ul class="rules">
+            <li><span class="n">1</span><span>A variance is flagged only when it is above 5% and above €1,000. Small percentages on big lines and big percentages on tiny lines both waste attention.</span></li>
+            <li><span class="n">2</span><span>Favourable and unfavourable are judged against profit, so lower costs are favourable and lower revenue is not.</span></li>
+            <li><span class="n">3</span><span>Every flagged line gets one sentence: cause, whether it reverses, and what to do. If I cannot write that sentence, I do not understand the number yet.</span></li>
+            <li><span class="n">4</span><span>Timing differences are named as such so nobody fixes a problem that will fix itself.</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BOOKKEEPING ============ -->
+  <section class="section" id="journal">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Bookkeeping</p>
+          <h2>What each SELANA event does to the ledger.</h2>
+        </div>
+        <p class="lede">Ten transactions a light electric vehicle maker in the Netherlands books every month. Amounts are taken from the model above, so they follow the sliders. Pick one to see the journal entry and which statements move.</p>
+      </div>
+
+      <div class="journal">
+        <ul class="tx-list" id="tx-list" role="tablist" aria-label="Transactions"></ul>
+        <div class="tx-detail" id="tx-detail" role="tabpanel"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MONTH-END CLOSE ============ -->
+  <section class="section" id="close">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Financial workflows</p>
+          <h2>A five-day month-end close for a company that sells on Shopify and buys by the container.</h2>
+        </div>
+        <p class="lede">The job description asks for accurate records and better workflows. This is the close I would set up in the first month, with the reconciliation that proves each number. Each row is one check between two independent sources.</p>
+      </div>
+
+      <div class="close table-wrap" style="margin-top:0">
+        <table>
+          <thead><tr><th>Day</th><th>Task</th><th>Reconcile this</th><th>Against this</th><th>Owner</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Bank reconciliation</td><td>Every bank line, all accounts</td><td>Ledger cash account, zero unexplained lines</td><td>Finance</td></tr>
+            <tr><td>1</td><td>Shopify payouts</td><td>Payouts received in the bank</td><td>Shopify orders less refunds less fees, by payout batch</td><td>Finance</td></tr>
+            <tr><td>2</td><td>Stock count to ledger</td><td>Units per model and colour in the warehouse system</td><td>Inventory account at landed cost, units times cost</td><td>Finance with Ops</td></tr>
+            <tr><td>2</td><td>Supplier prepayment roll-forward</td><td>Deposits and balances paid per purchase order</td><td>Containers landed in the month, moved to inventory</td><td>Finance with Ops</td></tr>
+            <tr><td>3</td><td>Landed cost per container</td><td>Factory invoice, freight, duty, inbound handling</td><td>Budgeted landed cost, difference explained per container</td><td>Finance</td></tr>
+            <tr><td>3</td><td>Customer deposit ledger</td><td>Nova pre-orders open in Shopify</td><td>Customer deposits liability, after deliveries and cancellations</td><td>Finance</td></tr>
+            <tr><td>3</td><td>VAT and import VAT</td><td>Output VAT on sales and deposits, input VAT on costs</td><td>Article 23 import VAT declared and deducted in the same return</td><td>Finance</td></tr>
+            <tr><td>4</td><td>Accruals and provisions</td><td>Warranty provision at 2% of revenue, Connect subscriptions deferred</td><td>Claims paid in the month, subscriptions recognised by month</td><td>Finance</td></tr>
+            <tr><td>4</td><td>Budget versus actual</td><td>Actuals from the closed ledger</td><td>Budget, with flags and one sentence per flag</td><td>Finance</td></tr>
+            <tr><td>5</td><td>Report pack</td><td>Income statement, balance sheet, cash flow, 13-week cash view</td><td>Last month's pack, so the story is continuous</td><td>Finance to founders</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT ============ -->
+  <section class="section" id="about">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">What this is, and why I made it</p>
+          <h2>A CV says analytical. A model that ties shows it.</h2>
+        </div>
+        <p class="lede">SELANA is hiring finance support for bookkeeping, budget tracking, cost and revenue monitoring, and clearer financial workflows. Instead of describing those skills, I built them around SELANA's actual business and put the result where the team can click on it.</p>
+      </div>
+
+      <div class="about">
+        <div>
+          <h3>What is on this page</h3>
+          <p>A single, connected model. One Alpha's unit economics feed the cash curve of a container. The container terms feed a twelve-month forecast that orders stock on its own. The forecast produces an income statement, a balance sheet and a cash flow statement that reconcile to the euro. The same numbers drive the journal entries. Change a slider at the top and every table on the page moves.</p>
+          <p>Everything that is public, such as the €1,900 Alpha price, the €899 Nova pre-order, the 21% VAT, the Q4 2026 Nova release and the fact that assembly happens in Asia, is taken from selana.nl and press coverage. Everything else is an assumption, labelled as such, meant to be replaced by real figures in an afternoon.</p>
+
+          <h3 style="margin-top:36px">Why these modules</h3>
+          <p>Because they map onto the role. Financial statements and their practical use: the three-statement section. Bookkeeping, reconciliations and journal entries: the ledger and the close. Budget tracking and cost and revenue monitoring: the budget section and the landed-cost check. Analysing data to support decisions: the container curve, which answers the question a manufacturer asks most, which is how much cash one more container needs and for how long.</p>
+
+          <h3 style="margin-top:36px">What I would do first</h3>
+          <ul class="plan">
+            <li><span class="d">Week 1</span><span>Set up the bank and Shopify payout reconciliation so it runs in under an hour, and agree the chart of accounts for deposits, prepayments and landed cost.</span></li>
+            <li><span class="d">Week 2</span><span>Build the supplier prepayment roll-forward and the landed-cost sheet per container, with actuals against budget.</span></li>
+            <li><span class="d">Week 3</span><span>Open the Nova customer deposit ledger and the Connect subscription deferral, so revenue is recognised when it is earned.</span></li>
+            <li><span class="d">Week 4</span><span>Close the first month on the five-day schedule above and send the first report pack with a 13-week cash view.</span></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3>Who I am</h3>
+          <p>I am Paolo Caneparo. I am part of the founding team at Rewize, an inventory planning and forecasting platform for e-commerce brands. My daily work is purchase orders, supplier lead times, landed costs and the cash that sits in stock and in transit, which for a hardware company is most of the balance sheet. I have spent the last two years helping brands decide when to order, how much, and what it does to their cash.</p>
+          <p>I am applying as a freelancer rather than as an intern. I can work part-time, hybrid in Amsterdam, and I am happy to start with the workflows on this page, free of charge, so SELANA can judge the work before paying for any of it.</p>
+          <p>This model, the code behind it and the write-up are SELANA's to keep and use whether or not we work together.</p>
+          <div class="cta">
+            <a class="btn btn-primary" href="mailto:paolo.caneparo@gmail.com?subject=Finance%20Lab%20for%20SELANA">Write to Paolo</a>
+            <a class="btn btn-ghost" href="#unit">Back to the model</a>
+          </div>
+          <p class="srcnote" style="margin-top:22px">Built in plain HTML, CSS and JavaScript so it runs anywhere, including on a laptop with no internet. No tracking, no cookies, no data leaves the page.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Finance Lab for SELANA is an independent, unsolicited piece of work by Paolo Caneparo and is not affiliated with, endorsed by or produced for SELANA B.V. SELANA and SELANA Alpha are trademarks of their owner. Public figures were read from selana.nl and from MT/Sprout on 29 October 2026. All costs, volumes, terms and balances are illustrative assumptions and not statements about SELANA's actual finances.</p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
